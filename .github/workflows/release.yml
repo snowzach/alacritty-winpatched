@@ -39,7 +39,6 @@ jobs:
           cargo build --release
       - name: Upload portable executable
         run: |
-          cd /tmp/alacritty
           cp /tmp/alacritty/target/release/alacritty.exe /tmp/Alacritty-${GITHUB_REF##*/}-portable.exe
           ./.github/workflows/upload_asset.sh \
             /tmp/Alacritty-${GITHUB_REF##*/}-portable.exe $GITHUB_TOKEN
