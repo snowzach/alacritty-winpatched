@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          name: alacritty/alacritty
+          repository: alacritty/alacritty
           ref: refs/heads/master
       - name: Test
         run: cargo test --release
