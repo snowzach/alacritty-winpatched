@@ -3,6 +3,11 @@ name: Release
 on:
   push:
     tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
+# on:
+#   push:
+#     paths:
+#       - 'release-versions/*'
+
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -18,9 +23,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          repository: alacritty/alacritty
-          ref: refs/heads/master
+      - name: Test & Build
+        run: |
+          LATEST_TAG=$(curl -sL https://api.github.com/repos/alacritty/alacritty/releases/latest | jq -r ".tag_name")
+          cd /tmp
+          git clone https://github.com/alacritty/alacritty.git
+          cd alacritty
       - name: Test
         run: cargo test --release
       - name: Build
