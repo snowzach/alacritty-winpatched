@@ -49,6 +49,7 @@ jobs:
       - name: Crate msi installer
         run: |
           cd /tmp/alacritty
+          sed -ie 's/\(<Product.*Version="\).*\(" Manu.*\)/\10.9.0\2/' extra/windows/wix/alacritty.wxs
           ./WiX.*/tools/candle.exe -nologo -arch "x64" -ext WixUIExtension -ext WixUtilExtension \
             -out "./alacritty.wixobj" "extra/windows/wix/alacritty.wxs"
           ./WiX.*/tools/light.exe -nologo -ext WixUIExtension -ext WixUtilExtension \
