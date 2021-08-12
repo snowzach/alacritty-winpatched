@@ -43,7 +43,9 @@ jobs:
           ./.github/workflows/upload_asset.sh \
             /tmp/Alacritty-${GITHUB_REF##*/}-portable.exe $GITHUB_TOKEN
       - name: Install WiX
-        run: nuget install WiX
+        run: |
+          cd /tmp/alacritty
+          nuget install WiX
       - name: Crate msi installer
         run: |
           cd /tmp/alacritty
