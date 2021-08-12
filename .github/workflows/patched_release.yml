@@ -1,13 +1,13 @@
-name: Release
+name: Patched Release
 
-on:
-  push:
-    tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
+# on:
+#   push:
+#     tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
 # on:
 #   push:
 #     paths:
 #       - 'release-versions/*'
-
+on: workflow_dispatch
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -23,21 +23,25 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Download
+      - name: Clone Upstream
         run: |
           LATEST_TAG=$(curl -sL https://api.github.com/repos/alacritty/alacritty/releases/latest | jq -r ".tag_name")
           cd /tmp
           git clone https://github.com/alacritty/alacritty.git
           cd alacritty
-      # - name: Test
-      #   run: |
-      #     cd /tmp/alacritty
-      #     cargo test --release
+      - name: Patch
+        run: |
+          cd /tmp/alacritty
+          git apply $GITHUB_WORKSPACE/alacritty-win.patch
+      - name: Test
+        run: |
+          cd /tmp/alacritty
+          cargo test --release
       - name: Build
         run: |
           cd /tmp/alacritty
           cargo build --release
-      - name: Upload portable executable
+      - name: Upload Portable Executable
         run: |
           cp /tmp/alacritty/target/release/alacritty.exe /tmp/Alacritty-${GITHUB_REF##*/}-portable.exe
           ./.github/workflows/upload_asset.sh \
@@ -46,17 +50,19 @@ jobs:
         run: |
           cd /tmp/alacritty
           nuget install WiX
-      - name: Crate msi installer
+      - name: Create MSI Installer
         run: |
           cd /tmp/alacritty
-          WIN_VERSION=$(echo "${GITHUB_REF##*/}" | sed -e 's/v\(.*\)/\1/')
+          # Strip anything but numbers/dots
+          WIN_VERSION=$(echo "${GITHUB_REF##*/}" | sed 's/[^0-9\.]//g')
+          # Update version in wix config
           sed -ie "s/\\(<Product.*Version=\"\\).*\\(\" Manu.*\\)/\1$WIN_VERSION\2/" extra/windows/wix/alacritty.wxs
           ./WiX.*/tools/candle.exe -nologo -arch "x64" -ext WixUIExtension -ext WixUtilExtension \
             -out "./alacritty.wixobj" "extra/windows/wix/alacritty.wxs"
           ./WiX.*/tools/light.exe -nologo -ext WixUIExtension -ext WixUtilExtension \
             -out "/tmp/Alacritty-${GITHUB_REF##*/}-installer.msi" -sice:ICE61 -sice:ICE91 \
             "./alacritty.wixobj"
-      - name: Upload msi installer
+      - name: Upload MSI Installer
         run: |
           ./.github/workflows/upload_asset.sh \
             /tmp/Alacritty-${GITHUB_REF##*/}-installer.msi $GITHUB_TOKEN
