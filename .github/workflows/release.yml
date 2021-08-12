@@ -29,10 +29,10 @@ jobs:
           cd /tmp
           git clone https://github.com/alacritty/alacritty.git
           cd alacritty
-      - name: Test
-        run: |
-          cd /tmp/alacritty
-          cargo test --release
+      # - name: Test
+      #   run: |
+      #     cd /tmp/alacritty
+      #     cargo test --release
       - name: Build
         run: |
           cd /tmp/alacritty
@@ -40,9 +40,9 @@ jobs:
       - name: Upload portable executable
         run: |
           cd /tmp/alacritty
-          cp ./target/release/alacritty.exe ./Alacritty-${GITHUB_REF##*/}-portable.exe
+          cp /tmp/alacritty/target/release/alacritty.exe /tmp/Alacritty-${GITHUB_REF##*/}-portable.exe
           ./.github/workflows/upload_asset.sh \
-            ./Alacritty-${GITHUB_REF##*/}-portable.exe $GITHUB_TOKEN
+            /tmp/Alacritty-${GITHUB_REF##*/}-portable.exe $GITHUB_TOKEN
       - name: Install WiX
         run: nuget install WiX
       - name: Crate msi installer
@@ -51,9 +51,9 @@ jobs:
           ./WiX.*/tools/candle.exe -nologo -arch "x64" -ext WixUIExtension -ext WixUtilExtension \
             -out "./alacritty.wixobj" "extra/windows/wix/alacritty.wxs"
           ./WiX.*/tools/light.exe -nologo -ext WixUIExtension -ext WixUtilExtension \
-            -out "./Alacritty-${GITHUB_REF##*/}-installer.msi" -sice:ICE61 -sice:ICE91 \
+            -out "/tmp/Alacritty-${GITHUB_REF##*/}-installer.msi" -sice:ICE61 -sice:ICE91 \
             "./alacritty.wixobj"
       - name: Upload msi installer
         run: |
           ./.github/workflows/upload_asset.sh \
-            ./Alacritty-${GITHUB_REF##*/}-installer.msi $GITHUB_TOKEN
+            /tmp/Alacritty-${GITHUB_REF##*/}-installer.msi $GITHUB_TOKEN
