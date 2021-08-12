@@ -49,7 +49,8 @@ jobs:
       - name: Crate msi installer
         run: |
           cd /tmp/alacritty
-          sed -ie 's/\(<Product.*Version="\).*\(" Manu.*\)/\10.9.0\2/' extra/windows/wix/alacritty.wxs
+          WIN_VERSION=$(echo "${GITHUB_REF##*/}" | sed -e 's/v\(.*\)/\1/')
+          sed -ie "s/\\(<Product.*Version=\"\\).*\\(\" Manu.*\\)/\1$WIN_VERSION\2/" extra/windows/wix/alacritty.wxs
           ./WiX.*/tools/candle.exe -nologo -arch "x64" -ext WixUIExtension -ext WixUtilExtension \
             -out "./alacritty.wixobj" "extra/windows/wix/alacritty.wxs"
           ./WiX.*/tools/light.exe -nologo -ext WixUIExtension -ext WixUtilExtension \
