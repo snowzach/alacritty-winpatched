@@ -1,8 +1,8 @@
 name: Patched Release
 
-# on:
-#   push:
-#     tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
 # on:
 #   push:
 #     paths:
@@ -43,9 +43,9 @@ jobs:
           cargo build --release
       - name: Upload Portable Executable
         run: |
-          cp /tmp/alacritty/target/release/alacritty.exe /tmp/Alacritty-${GITHUB_REF##*/}-portable.exe
+          cp /tmp/alacritty/target/release/alacritty.exe /tmp/Alacritty-winpatched-${GITHUB_REF##*/}-portable.exe
           ./.github/workflows/upload_asset.sh \
-            /tmp/Alacritty-${GITHUB_REF##*/}-portable.exe $GITHUB_TOKEN
+            /tmp/Alacritty-winpatched-${GITHUB_REF##*/}-portable.exe $GITHUB_TOKEN
       - name: Install WiX
         run: |
           cd /tmp/alacritty
@@ -60,9 +60,9 @@ jobs:
           ./WiX.*/tools/candle.exe -nologo -arch "x64" -ext WixUIExtension -ext WixUtilExtension \
             -out "./alacritty.wixobj" "extra/windows/wix/alacritty.wxs"
           ./WiX.*/tools/light.exe -nologo -ext WixUIExtension -ext WixUtilExtension \
-            -out "/tmp/Alacritty-${GITHUB_REF##*/}-installer.msi" -sice:ICE61 -sice:ICE91 \
+            -out "/tmp/Alacritty-winpatched-${GITHUB_REF##*/}-installer.msi" -sice:ICE61 -sice:ICE91 \
             "./alacritty.wixobj"
       - name: Upload MSI Installer
         run: |
           ./.github/workflows/upload_asset.sh \
-            /tmp/Alacritty-${GITHUB_REF##*/}-installer.msi $GITHUB_TOKEN
+            /tmp/Alacritty-winpatched-${GITHUB_REF##*/}-installer.msi $GITHUB_TOKEN

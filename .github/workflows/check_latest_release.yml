@@ -1,4 +1,4 @@
-name: Get latest release version from github.com/alacritty/alacritty
+name: Check Latest Release
 on:
   schedule:
     - cron:  '0 10 * * *'
