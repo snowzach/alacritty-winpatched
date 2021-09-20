@@ -3,6 +3,7 @@ name: Patched Release
 on:
   push:
     tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
+  workflow_dispatch: {}
 # on:
 #   push:
 #     paths:
@@ -24,7 +25,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Clone Upstream
         run: |
-          LATEST_TAG=$(curl -sL https://api.github.com/repos/alacritty/alacritty/releases/latest | jq -r ".tag_name")
+          LATEST_SHA=$(curl -sL https://api.github.com/repos/alacritty/alacritty/commits/master | jq -r ".sha" | cut -c1-8)
           cd /tmp
           git clone https://github.com/alacritty/alacritty.git
           cd alacritty
@@ -49,9 +50,9 @@ jobs:
           cargo build --release
       - name: Upload Portable Executable
         run: |
-          cp /tmp/alacritty/target/release/alacritty.exe /tmp/Alacritty-winpatched-${GITHUB_REF##*/}-portable.exe
+          cp /tmp/alacritty/target/release/alacritty.exe /tmp/Alacritty-${LATEST_SHA}-portable.exe
           ./.github/workflows/upload_asset.sh \
-            /tmp/Alacritty-winpatched-${GITHUB_REF##*/}-portable.exe $GITHUB_TOKEN
+            /tmp/Alacritty-${LATEST_SHA}-portable.exe $GITHUB_TOKEN
       - name: Install WiX
         run: |
           cd /tmp/alacritty
@@ -61,9 +62,16 @@ jobs:
           ./WiX.*/tools/candle.exe -nologo -arch "x64" -ext WixUIExtension -ext WixUtilExtension \
             -out "./alacritty.wixobj" "extra/windows/wix/alacritty.wxs"
           ./WiX.*/tools/light.exe -nologo -ext WixUIExtension -ext WixUtilExtension \
-            -out "/tmp/Alacritty-winpatched-${GITHUB_REF##*/}-installer.msi" -sice:ICE61 -sice:ICE91 \
+            -out "/tmp/Alacritty-${LATEST_SHA}-installer.msi" -sice:ICE61 -sice:ICE91 \
             "./alacritty.wixobj"
       - name: Upload MSI Installer
         run: |
           ./.github/workflows/upload_asset.sh \
-            /tmp/Alacritty-winpatched-${GITHUB_REF##*/}-installer.msi $GITHUB_TOKEN
+            /tmp/Alacritty-${LATEST_SHA}-installer.msi $GITHUB_TOKEN
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            Alacritty-${LATEST_SHA}-installer.msi
+            Alacritty-${LATEST_SHA}-portable.exe
