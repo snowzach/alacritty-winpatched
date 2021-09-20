@@ -36,6 +36,13 @@ jobs:
       #   run: |
       #     cd /tmp/alacritty
       #     cargo test --release
+      - name: Patch
+        run: |
+          cd /tmp/alacritty
+          # Strip anything but numbers/dots
+          WIN_VERSION=$(echo "${GITHUB_REF##*/}" | sed 's/[^0-9\.]//g')
+          # Update version in wix config
+          sed -ie "s/\\(<Product.*Version=\"\\).*\\(\" Manu.*\\)/\1$WIN_VERSION\2/" extra/windows/wix/alacritty.wxs
       - name: Build
         run: |
           cd /tmp/alacritty
@@ -51,11 +58,6 @@ jobs:
           nuget install WiX
       - name: Create MSI Installer
         run: |
-          cd /tmp/alacritty
-          # Strip anything but numbers/dots
-          WIN_VERSION=$(echo "${GITHUB_REF##*/}" | sed 's/[^0-9\.]//g')
-          # Update version in wix config
-          sed -ie "s/\\(<Product.*Version=\"\\).*\\(\" Manu.*\\)/\1$WIN_VERSION\2/" extra/windows/wix/alacritty.wxs
           ./WiX.*/tools/candle.exe -nologo -arch "x64" -ext WixUIExtension -ext WixUtilExtension \
             -out "./alacritty.wixobj" "extra/windows/wix/alacritty.wxs"
           ./WiX.*/tools/light.exe -nologo -ext WixUIExtension -ext WixUtilExtension \

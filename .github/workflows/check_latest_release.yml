@@ -12,7 +12,7 @@ jobs:
 
       - name: Fetch release version
         run: |
-          curl -sL https://api.github.com/repos/alacritty/alacritty/releases/latest | jq -r ".tag_name" > current_release.txt
+          curl -sL https://api.github.com/repos/alacritty/alacritty/commits/master | jq -r ".sha" > current_commit.txt
 
       - name: Check for modified files
         id: git-check
@@ -23,5 +23,5 @@ jobs:
         run: |
           git config --global user.name 'Zach Brown'
           git config --global user.email 'git@prozach.org'
-          git commit -am "New release!!!"
+          git commit -am "New master push..."
           git push
