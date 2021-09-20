@@ -1,8 +1,8 @@
 name: Patched Release
 
 on:
-  push:
-    tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
+  #push:
+  #  tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
   workflow_dispatch: {}
 # on:
 #   push:
