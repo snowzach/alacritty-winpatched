@@ -52,7 +52,7 @@ jobs:
         run: |
           cp /tmp/alacritty/target/release/alacritty.exe /tmp/Alacritty-${LATEST_SHA}-portable.exe
           ./.github/workflows/upload_asset.sh \
-            /tmp/Alacritty-${LATEST_SHA}-portable.exe $GITHUB_TOKEN
+            /tmp/Alacritty-${LATEST_SHA}-portable.exe $GITHUB_TOKEN ${LATEST_SHA}
       - name: Install WiX
         run: |
           cd /tmp/alacritty
@@ -67,7 +67,7 @@ jobs:
       - name: Upload MSI Installer
         run: |
           ./.github/workflows/upload_asset.sh \
-            /tmp/Alacritty-${LATEST_SHA}-installer.msi $GITHUB_TOKEN
+            /tmp/Alacritty-${LATEST_SHA}-installer.msi $GITHUB_TOKEN ${LATEST_SHA}
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')

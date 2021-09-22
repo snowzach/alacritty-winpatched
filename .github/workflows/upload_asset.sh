@@ -9,11 +9,12 @@ fi
 repo="snowzach/alacritty-winpatched"
 file_path=$1
 bearer=$2
+tag=$3
 
 echo "Starting asset upload from $file_path to $repo."
 
 # Get the release for this tag.
-tag="$(git describe --tags --abbrev=0)"
+#tag="$(git describe --tags --abbrev=0)"
 
 # Make sure the git tag could be determined.
 if [ -z "$tag" ]; then
